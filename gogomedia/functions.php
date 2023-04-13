@@ -146,7 +146,7 @@ function gogomedia_scripts() {
     wp_enqueue_script('jquery');
     wp_enqueue_script('gogomedia-slick', get_template_directory_uri() . '/js/slick.min.js', array(), _S_VERSION, true);
     wp_enqueue_script('gogomedia-scripts', get_template_directory_uri() . '/js/scripts.js', array(), _S_VERSION, true);
-    
+
     wp_localize_script('gogomedia-scripts', 'frontend_object', [
         'template_dir' => get_template_directory_uri()
     ]);
@@ -154,59 +154,17 @@ function gogomedia_scripts() {
 
 add_action('wp_enqueue_scripts', 'gogomedia_scripts');
 
-use Carbon_Fields\Container;
-use Carbon_Fields\Field;
-use Carbon_Fields\Block;
+acf_register_block_type([
+    'name' => 'gogogo-slider',
+    'title' => 'Gogogo slider',
+    'category' => 'embed',
+    'icon' => 'book-alt',
+    'render_template' => 'blocks/gogo-slider/gogo-slider.php',
+    'enqueue_assets' => function () {
+        wp_enqueue_style('gogo-slider-block-css', get_template_directory_uri() . '/blocks/gogo-slider/gogo-slider.css');
+        wp_enqueue_script('gogo-slider-block-js', get_template_directory_uri() . '/blocks/gogo-slider/gogo-slider.js');
+        wp_localize_script('gogo-slider-block-js', 'frontend_object', [
+            'template_dir' => get_template_directory_uri()]);
+    }
+]);
 
-add_action('carbon_fields_register_fields', 'crb_attach_theme_options');
-
-function crb_attach_theme_options() {
-    Block::make(__('Slider boxes'))
-            ->add_fields(array(
-                
-                Field::make('text', 'block-heading', __('Heading')),
-                Field::make('text', 'block-subheading', __('Subheading')),
-                Field::make('text', 'block-heading-2', __('Heading 2')),
-                Field::make('checkbox', 'slider-trigger', __('Turn on slider')),
-                Field::make('complex', 'boxes', __('Boxes'))
-                ->add_fields([
-                    Field::make('text', 'heading', __('Heading')),
-                    Field::make('textarea', 'content', __('Content')),
-                    Field::make('image', 'icon', __('Icon'))
-                ])
-                ->set_layout('tabbed-horizontal'),
-            ))
-            ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
-                ?>
-
-                <section id="<?php echo $fields['slider-trigger'] ? 'slider' : 'content'; ?>">
-                    <div class="container">       
-                        <h1><?php echo esc_html($fields['block-heading']); ?></h1>     
-                        <div class="subheader">
-                            <?php echo esc_html($fields['block-subheading']); ?>
-                        </div>
-                        <?php if ($fields['block-heading-2']); ?>
-                        <h2><?php echo esc_html($fields['block-heading-2']); ?></h2>
-                        <div class="row <?php echo $fields['slider-trigger'] ? 'slider-items' : ''; ?>">
-                            <?php if ($fields['boxes']) ; ?>
-                            <?php foreach ($fields['boxes'] as $box) { ?>
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="box">
-                                        <?php if ($box['heading']) ; ?>
-                                        <h3><?php echo esc_html($box['heading']); ?></h3>                                        
-                                        <?php if ($box['content']) ; ?>
-                                        <?php echo apply_filters('the_content', $box['content']); ?>   
-                                        <?php if ($box['icon']) ; ?>
-                                        <div class="icon">
-                                            <?php echo wp_get_attachment_image($box['icon'], 'medium'); ?>
-                                        </div>
-                                    </div>
-                                </div>                            
-                            <?php }
-                            ?>
-                        </div>
-                    </div>
-                </section>               
-                <?php
-            });
-}

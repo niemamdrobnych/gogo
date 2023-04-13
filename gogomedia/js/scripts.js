@@ -1,5 +1,5 @@
 var $ = jQuery.noConflict();
-
+console.log('dupa dupa');
 $('#slider .slider-items').slick({
     slidesToShow: 3,
     responsive: [
